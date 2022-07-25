@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1658616055 source:c:\users\quezi\onedrive\documentos\water sort puzzle - trabalho dcc - 1 semestre\trabalho dcc\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<string.h>
+
