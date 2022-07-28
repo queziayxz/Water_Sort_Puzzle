@@ -11,99 +11,115 @@
 #include <windows.h>
 #include <string.h>
 
-//DECLARO AS CORES PARA PODER USAR
-//#define DARKRED FOREGROUND_RED
-//#define DARKBLUE FOREGROUND_BLUE
-//#define DARKGREEN FOREGROUND_GREEN
-//#define DARKCYAN FOREGROUND_GREEN | FOREGROUND_BLUE
-//#define DARKMAGENTA FOREGROUND_RED | FOREGROUND_BLUE
-//#define DARKYELLOW FOREGROUND_RED | FOREGROUND_GREEN
-//#define DARKGRAY FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
-#define GRAY FOREGROUND_INTENSITY
-#define BLUE FOREGROUND_INTENSITY | FOREGROUND_BLUE
-#define GREEN FOREGROUND_INTENSITY | FOREGROUND_GREEN
-#define CYAN FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE
-#define RED FOREGROUND_INTENSITY | FOREGROUND_RED
-#define MAGENTA FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE
-#define YELLOW FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN
-#define WHITE FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
+//DECLARAÇÃO DAS CONSTANTES
+#define QUANTIDADE_CORES 26
+#define QUANTIDADE_PORCOES 4
+
+//DECLARAÇÃO DAS MINHAS ESTRUTURAS
+typedef struct
+{
+    char nomeJogador[100];
+    int faseJogo;
+
+}DadosJogador;
 
 //DECLARAÇÃO DAS FUNÇÕES UTILIZADAS NO PROGRAMA
-void constroiFrascos(int quantFrascos, int quantFrascosVazios, int numFase);
-void jogoFase1();
+void constroiFrascos(int quantFrascos, int quantFrascosVazios, int numFase, char nomeJogador[]);
+void jogoFase1(char nomeJogador[]);
+
 
 //FUNÇÃO PRINCIPAL DO PROGRAMA
 int main()
 {
-    constroiFrascos(3,1,1);
+    DadosJogador jogador;
+    int gameContinua = 0;
 
-    //system("color 0C");
+    printf("informe o seu nome antes de começar o jogo: ");
+    scanf("%s",jogador.nomeJogador);
+    printf("Digite 1 para ir continuar o jogo ou zero para finalizar: ");
+    scanf("%d",&gameContinua);
+
+    if(gameContinua == 1)
+    {
+        jogoFase1();
+    }
+
     return 0;
 }
 
 //UTILIZAÇÃO DAS FUNÇÕES DECLARADAS
-void constroiFrascos(int quantFrascos, int quantFrascosVazios, int numFase)
+void constroiFrascos(int quantFrascos, int quantFrascosVazios, int numFase, char nomeJogador[])
 {
-    char frascos[4][quantFrascos+1];
-    int quantFrascosCheios = quantFrascos - quantFrascosVazios;
-    char cores[] = "GRAY";"BLUE";"GREEN";"CYAN";"RED";"MAGENTA";"YELLOW";"WHITE";
+    int quantFrascosCheios = quantFrascos - quantFrascosVazios;//verifica quantis frascos cheios terão na fase
+    int quantCor = quantFrascosCheios; //armazena a quantidade de cores que serão utilizadas de acordo com a quantidade de frascos cheios que terá
+    int sorteiaCor[quantCor], indiceSorteado = 0;//vetor para armazenar as cores que serão utlizadas
+    int frascosArmazena[QUANTIDADE_PORCOES][quantFrascos+1]; //conta quantas vezes a cor ja foi utilizada no sorteio
+    char frascos[QUANTIDADE_PORCOES][quantFrascos+1];//vetor que irá desenhar os frascos na tela
+    char cores[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M',
+                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
-    //VERIFICAR COMO FUNCIONA ISSO DAQUI
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-    WORD saved_attributes;
 
-    /* Save current attributes */
-    GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
-    saved_attributes = consoleInfo.wAttributes;
+    printf(" -------------------------------------------\n");
+    printf("³                                           ³\n");
+    printf("³Nome: %s                                   \n",nomeJogador);
+    printf("³Fase: %d                                      \n", numFase);
+    printf("³                                           ³\n");
+    printf(" -------------------------------------------\n\n");
 
-    //SetConsoleTextAttribute(hConsole, YELLOW);
-    //printf("This is some nice COLORFUL text, isn't it?");
-
-    /* Restore original attributes */
-    //SetConsoleTextAttribute(hConsole, saved_attributes);
-    //printf("Back to normal");
-
-    printf("***********************************************************************************************************************\n");
-    printf("\n                                                 FASE %d\n\n", numFase);
-    printf("***********************************************************************************************************************\n\n");
-
-    for(int i = 0; i < 4; i++)
+    for(int i = 0; i < QUANTIDADE_PORCOES; i++)
     {
-        for(int j = 0; j < quantFrascos+1; j++)
+        for(int j = 0; j <= quantFrascos; j++)
         {
             frascos[i][j] = '|';
         }
     }
 
-    //desenha os frascos na tela
-    for(int i = 0; i < 4; i++)
+    //armazena no vetor as cores que serão utilizadas
+    for(int i = 0; i < quantCor; i++)
     {
-        printf("     ");
-        for(int j = 0; j < quantFrascos+1; j++)
+        sorteiaCor[i] = rand() % QUANTIDADE_CORES; //sorteia a cor que ira ser utilizada
+    }
+
+    //coloca o numero da coluna em cima para poder ajudar o usuário na hora de informar
+    for(int i = 0; i < quantFrascos; i++)
+    {
+        printf("   %d  ",i);
+    }
+
+    printf("\n");
+
+    //desenha os frascos na tela
+    for(int i = 0; i < QUANTIDADE_PORCOES; i++)
+    {
+        for(int j = 0; j <= quantFrascos; j++)
         {
-            if(j <= quantFrascosCheios-1)
+            //verifica para não desenhar o contúdo dentro do frasco, uma coluna fora
+            if(j < quantFrascosCheios)
             {
-                SetConsoleTextAttribute(hConsole, cores[i]);
                 printf("%c",frascos[i][j]);
-                printf("#####");
+                indiceSorteado = sorteiaCor[rand() % quantCor];
+                frascosArmazena[i][j] = cores[indiceSorteado];
+                for(int y = 0; y < 5; y++)
+                {
+                    printf("%c", cores[indiceSorteado]);
+                }
             }
             else if(j >= quantFrascosCheios)
             {
-                SetConsoleTextAttribute(hConsole, saved_attributes);
+                frascosArmazena[i][j] = '#';
                 printf("%c     ",frascos[i][j]);
             }
-            else
+            else if(j == quantFrascos)
             {
-                SetConsoleTextAttribute(hConsole, saved_attributes);
+                frascosArmazena[i][j] = '#';
                 printf("%c",frascos[i][j]);
             }
         }
         printf("\n");
     }
+}
 
-    //printf("\n10 Numeros aleatorios no intervalo [0, 99]: \n");
-    //for(int i=1 ; i <= 10 ; i++){
-     //   printf("Numero %d: %d\n",i, rand()%10); //estrategia para gerar numero num dado intervalo de interesse.
-    //}
+void jogoFase1()
+{
+    constroiFrascos(3,1,1,jogador.nomeJogador);
 }
